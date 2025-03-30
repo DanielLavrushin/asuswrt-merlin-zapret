@@ -30,9 +30,60 @@
                             <div class="formfontdesc">
                               <div>&nbsp;</div>
                               <div class="formfonttitle" style="text-align: center">Zapret UI</div>
-
                               <div id="formfontdesc" class="formfontdesc"></div>
                               <div style="margin: 10px 0 10px 5px" class="splitLine"></div>
+                              <table class="FormTable" style="width: 100%">
+                                <thead>
+                                  <tr>
+                                    <td colspan="2">
+                                      {{ $t('com.MainForm.title') }}
+                                      <hint v-html="$t('components.MainForm.hint_title')"></hint>
+                                    </td>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <th>{{ $t('com.MainForm.control') }}</th>
+                                    <td>
+                                      <span class="row-buttons">
+                                        <a class="button_gen button_gen_small" href="#" @click.prevent="start">{{ $t('global.start') }} </a>
+                                        <a class="button_gen button_gen_small" href="#" @click.prevent="stop">{{ $t('global.stop') }}</a>
+                                      </span>
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <th>{{ $t('com.MainForm.interface') }}</th>
+                                    <td>
+                                      <select v-model="response.tpws.interface" class="input_option">
+                                        <option v-for="opt in response.tpws.interfaces" :key="opt" :value="opt">
+                                          {{ opt }}
+                                        </option>
+                                      </select>
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <th>{{ $t('com.MainForm.port') }}</th>
+                                    <td>
+                                      <input type="number" v-model="response.tpws.port" class="input_6_table" maxlength="5" placeholder="port" onkeypress="return validator.isNumber(this,event);" />
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <th>{{ $t('com.MainForm.nfqNum') }}</th>
+                                    <td>
+                                      <input type="number" v-model="response.nfqws.qnum" class="input_25_table" placeholder="200" />
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <th>{{ $t('com.MainForm.desyncMark') }}</th>
+                                    <td>
+                                      <input v-model="response.nfqws.desync_mark" class="input_25_table" placeholder="0x40000000" />
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                              <div class="apply_gen">
+                                <input class="button_gen" @click.prevent="apply_settings()" type="button" :value="$t('global.apply')" />
+                              </div>
                             </div>
                           </td>
                         </tr>
@@ -49,23 +100,61 @@
   </form>
 </template>
 <script lang="ts">
-  import { defineComponent } from 'vue';
+  import { defineComponent, inject, Ref } from 'vue';
 
   import AsusMainMenu from './asus/MainMenu.vue';
   import AsusTabMenu from './asus/TabMenu.vue';
   import AsusSubMenu from './asus/SubMenu.vue';
+
+  import Hint from './../Hint.vue';
+
+  import engine, { EngineResponseConfig, SubmtActions } from '../modules/Engine';
 
   export default defineComponent({
     name: 'MainForm',
     components: {
       AsusMainMenu,
       AsusTabMenu,
-      AsusSubMenu
+      AsusSubMenu,
+      Hint
     },
+    props: {
+      response: {
+        type: EngineResponseConfig,
+        required: true,
+        default: () => new EngineResponseConfig()
+      }
+    },
+    setup(props: { response: EngineResponseConfig }) {
+      const uiResponse = inject<Ref<EngineResponseConfig>>('uiResponse')!;
 
-    setup() {
+      const apply_settings = async () => {
+        await engine.executeWithLoadingProgress(async () => {
+          console.log('apply_settings', props.response);
+          await engine.submit(SubmtActions.APPLY, props.response);
+        });
+      };
+
+      const start = async () => {
+        await engine.executeWithLoadingProgress(async () => {
+          await engine.submit(SubmtActions.START);
+          uiResponse.value = await engine.getResponse();
+        });
+      };
+
+      const stop = async () => {
+        await engine.executeWithLoadingProgress(async () => {
+          await engine.submit(SubmtActions.STOP);
+          uiResponse.value = await engine.getResponse();
+        });
+      };
+
       return {
-        page: window.location.pathname.substring(1)
+        page: window.location.pathname.substring(1),
+        response: uiResponse,
+        apply_settings,
+        start,
+        stop
       };
     }
   });

@@ -1,4 +1,4 @@
-# XRAYUI Changelog
+# Zapret UI Changelog
 
 ## [x.xx.x] - 2025-xx-xx
 

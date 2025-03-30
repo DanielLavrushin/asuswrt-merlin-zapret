@@ -1,4 +1,4 @@
-export PATH=/opt/bin:/opt/sbin:/sbin:/bin:/usr/sbin:/usr/bin
+export PATH="/opt/bin:/opt/sbin:/sbin:/bin:/usr/sbin:/usr/bin"
 
 source /usr/sbin/helper.sh
 
@@ -18,10 +18,17 @@ DIR_WEB="/www/user/$ADDON_TAG"
 DIR_SHARE="/opt/share/$ADDON_TAG"
 DIR_JFFS_ADDONS="/jffs/addons/$ADDON_TAG"
 
-UI_RESPONSE_FILE="/tmp/${ADDON_TAG}_response.json"
+ZAPRET="$DIR_JFFS_ADDONS/zapret"
+ZAPRETUI_CONFIG="/opt/etc/zapretui.conf"
+
+UI_RESPONSE_FILE="$DIR_WEB/response.json"
 
 CERR='\033[0;31m'
 CSUC='\033[0;32m'
 CWARN='\033[0;33m'
 CINFO='\033[0;36m'
 CRESET='\033[0m'
+
+if [ -f "$ZAPRETUI_CONFIG" ]; then
+    . "$ZAPRETUI_CONFIG"
+fi

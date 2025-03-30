@@ -1,0 +1,24 @@
+{
+  "global": {
+    "apply": "Apply",
+    "cancel": "Cancel",
+    "close": "Close",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "start": "Start",
+    "stop": "Stop",
+    "save": "Save",
+    "reset": "Reset",
+    "restart": "Restart"
+  },
+  "com": {
+    "MainForm": {
+      "control": "Control",
+      "interface": "Interface",
+      "port": "Port to listen on",
+      "nfqNum": "NFQUEUE Number (QNUM)",
+      "desyncMark": "DPI Desync Mark (DESYNC_MARK)"
+    }
+  }
+}

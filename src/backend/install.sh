@@ -159,10 +159,5 @@ extract_and_install_zapret() {
         return 1
     }
 
-    ln -sf "$ZAPRET_DIR/ip2net/ip2net" /opt/bin/ip2net
-    ln -sf "$ZAPRET_DIR/mdig/mdig" /opt/bin/mdig
-    ln -sf "$ZAPRET_DIR/nfq/nfq" /opt/bin/nfqws
-    ln -sf "$ZAPRET_DIR/tpws/tpws" /opt/bin/tpws
-
     printlog true "zapret installed successfully" $CSUC
 }

@@ -82,7 +82,8 @@ export default defineConfig(({ mode }) => {
     },
     resolve: {
       alias: {
-        '@main': path.resolve(__dirname, 'src', 'components'),
+        '@com/': path.resolve(__dirname, 'src', 'components'),
+        '@mod/': path.resolve(__dirname, 'src', 'modules'),
         '@': path.resolve(__dirname, 'src')
       }
     },

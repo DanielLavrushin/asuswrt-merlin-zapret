@@ -45,27 +45,56 @@ get_webui_page() {
     fi
 }
 
+update_loading_progress() {
+    local message=$1
+    local progress=$2
+
+    load_ui_response
+
+    if [ -n "$progress" ]; then
+
+        UI_RESPONSE=$(echo "$UI_RESPONSE" | jq --argjson progress "$progress" --arg message "$message" '
+            .loading.message = $message |
+            .loading.progress = $progress
+        ')
+    else
+        UI_RESPONSE=$(echo "$UI_RESPONSE" | jq --arg message "$message" '
+            .loading.message = $message
+        ')
+    fi
+
+    echo "$UI_RESPONSE" >"$XRAY_UI_RESPONSE_FILE"
+
+    if [ "$progress" = "100" ]; then
+        /jffs/scripts/zapretui service_event cleanloadingprogress &
+    fi
+
+}
+
 remove_loading_progress() {
     printlog true "Removing loading progress..."
     sleep 1
-    ensure_ui_response_file
+    load_ui_response
+
+    local UI_RESPONSE=$(cat "$XRAY_UI_RESPONSE_FILE")
 
     UI_RESPONSE=$(echo "$UI_RESPONSE" | jq '
             del(.loading)
         ')
 
-    echo "$UI_RESPONSE" >"$UI_RESPONSE_FILE"
+    echo "$UI_RESPONSE" >"$XRAY_UI_RESPONSE_FILE"
     exit 0
 }
 
 cleanup_payloads() {
-    sed -i '/^yuui_payload/d' /jffs/addons/custom_settings.txt
+    sed -i '/^zapretui_payload/d' /jffs/addons/custom_settings.txt
 }
 
-ensure_ui_response_file() {
+load_ui_response() {
+
     if [ ! -f "$UI_RESPONSE_FILE" ]; then
         printlog true "Creating $ADDON_TITLE response file: $UI_RESPONSE_FILE"
-        echo '{"yuui":{}}' >"$UI_RESPONSE_FILE"
+        echo '{}' >"$UI_RESPONSE_FILE"
         chmod 600 "$UI_RESPONSE_FILE"
     fi
 
@@ -75,6 +104,13 @@ ensure_ui_response_file() {
         UI_RESPONSE="{}"
     fi
 
+}
+
+save_ui_response() {
+    echo "$UI_RESPONSE" >"$UI_RESPONSE_FILE" || {
+        printlog true "Failed to save UI response to $UI_RESPONSE_FILE" $CERR
+        return 1
+    }
 }
 
 am_settings_del() {
@@ -94,7 +130,7 @@ reconstruct_payload() {
     local chunk
     local payload=""
     while :; do
-        chunk=$(am_settings_get yuui_payload$idx)
+        chunk=$(am_settings_get zapretui_payload$idx)
         if [ -z "$chunk" ]; then
             break
         fi

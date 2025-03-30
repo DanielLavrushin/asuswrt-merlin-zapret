@@ -21,11 +21,27 @@
     <script language="JavaScript" type="text/javascript" src="/popup.js"></script>
     <script language="JavaScript" type="text/javascript" src="/help.js"></script>
     <script language="JavaScript" type="text/javascript" src="/validator.js"></script>
+    <script>
+      var zapretui = {
+        language: '<% nvram_get("preferred_lang"); %>',
+        tpws: parseInt('<% sysinfo("pid.tpws"); %>') > 0,
+        nfqws: parseInt('<% sysinfo("pid.nfqws"); %>') > 0
+      };
+      let custom_settings = `<% get_custom_settings(); %>`;
+
+      try {
+        zapretui.custom_settings = JSON.parse(custom_settings);
+      } catch (e) {
+        if (custom_settings.indexOf('zapret_payload') !== -1) {
+          console.error('Invalid custom settings: zapret_payload detected.');
+        }
+      }
+    </script>
   </head>
 
   <body>
     <div id="vue-app"></div>
     <div id="vue-modals"></div>
-    <script src="/ext/zapretui/app.js"></script>
+    <script src="/ext/zapretui/app.js" type="module"></script>
   </body>
 </html>
